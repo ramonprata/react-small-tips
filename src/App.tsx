@@ -1,25 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import UserRoleContext from './shared/contexts/UserRoleContext';
+import { IRoleInfo } from './shared/types';
+import { UserService } from './shared/services/UserService';
+import Board from './features/board/Board';
 
 function App() {
+
+  const [roleInfo, setRoleInfo] = useState<IRoleInfo>({
+    role: undefined,
+    isEmployee: false,
+    isManager: false
+  });
+
+  useEffect(() => {
+    const service = new UserService();
+
+    const loadUserRole = async () => {
+      try {
+        const role = await service.getUserRole();
+        setRoleInfo(role);
+      } catch (error) {
+        // handle error
+      }
+    }
+
+    loadUserRole();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <UserRoleContext.Provider value={roleInfo}>
+      <div className="App">
+        <header className="App-header">
+          My private area
+          <Board />
+        </header>
+      </div>
+    </UserRoleContext.Provider>
   );
 }
 
